@@ -8,7 +8,7 @@ import 'libraries/DelegationTarget.sol';
 import 'libraries/Extractable.sol';
 
 
-contract DisputeCrowdsourcer is DelegationTarget, VariableSupplyToken, Extractable, BaseReportingParticipant, IDisputeCrowdsourcer, Initializable {    
+contract DisputeCrowdsourcer is DelegationTarget, VariableSupplyToken, Extractable, BaseReportingParticipant, IDisputeCrowdsourcer, Initializable {
     function initialize(IMarket _market, uint256 _size, bytes32 _payoutDistributionHash, uint256[] _payoutNumerators, bool _invalid) public onlyInGoodTimes beforeInitialized returns (bool) {
         endInitialization();
         market = _market;
@@ -45,6 +45,7 @@ contract DisputeCrowdsourcer is DelegationTarget, VariableSupplyToken, Extractab
     }
 
     function contribute(address _participant, uint256 _amount) public onlyInGoodTimes returns (uint256) {
+        assert(reputationToken.balanceOf(this) == totalSupply());
         require(IMarket(msg.sender) == market);
         _amount = _amount.min(size - totalSupply());
         if (_amount == 0) {
@@ -56,6 +57,7 @@ contract DisputeCrowdsourcer is DelegationTarget, VariableSupplyToken, Extractab
         if (totalSupply() == size) {
             market.finishedCrowdsourcingDisputeBond();
         }
+        assert(reputationToken.balanceOf(this) == totalSupply());
         return _amount;
     }
 
